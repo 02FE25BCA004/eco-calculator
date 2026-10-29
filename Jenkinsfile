@@ -17,29 +17,26 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t eco-footprint-calculator:latest .'
+                // Uses the absolute path to Docker on Windows
+                sh '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t eco-footprint-calculator:latest .'
             }
         }
 
         stage('Run & Test Docker Container') {
             steps {
-                sh 'echo -e "10\n150\n5" | docker run --rm -i eco-footprint-calculator:latest'
+                sh 'echo -e "10\n150\n5" | "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" run --rm -i eco-footprint-calculator:latest'
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                // Securely injects credentials using the ID you created in Jenkins
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     script {
-                        // Log in to Docker Hub securely via stdin
-                        sh "echo '${DOCKER_PASS}' | docker login -u '${DOCKER_USER}' --password-stdin"
+                        sh "echo '${DOCKER_PASS}' | \"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" login -u '${DOCKER_USER}' --password-stdin"
                         
-                        // Tag the local image for your Docker Hub repository
-                        sh 'docker tag eco-footprint-calculator:latest 02fe25bca004/eco-footprint-calculator:latest'
-                        
-                        // Push the image to Docker Hub
-                        sh 'docker push 02fe25bca004/eco-footprint-calculator:latest'
+                        // Using your GitHub/Docker Hub username: 02FE25BCA004
+                        sh '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" tag eco-footprint-calculator:latest 02FE25BCA004/eco-footprint-calculator:latest'
+                        sh '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push 02FE25BCA004/eco-footprint-calculator:latest'
                     }
                 }
             }
