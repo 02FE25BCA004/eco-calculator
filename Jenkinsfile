@@ -17,14 +17,14 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // Uses the absolute path to Docker on Windows
                 sh '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t eco-footprint-calculator:latest .'
             }
         }
 
-        stage('Run & Test Docker Container') {
+        stage('Run Container (Pre-Fed Values)') {
             steps {
-                sh 'echo -e "10\n150\n5" | "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" run --rm -i eco-footprint-calculator:latest'
+                // Runs headlessly with pre-fed values baked into python script
+                sh '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" run --rm eco-footprint-calculator:latest'
             }
         }
 
@@ -33,8 +33,6 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     script {
                         sh "echo '${DOCKER_PASS}' | \"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" login -u '${DOCKER_USER}' --password-stdin"
-                        
-                        // Using your GitHub/Docker Hub username: 02FE25BCA004
                         sh '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" tag eco-footprint-calculator:latest 02FE25BCA004/eco-footprint-calculator:latest'
                         sh '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push 02FE25BCA004/eco-footprint-calculator:latest'
                     }
