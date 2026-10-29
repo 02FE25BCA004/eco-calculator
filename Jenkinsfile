@@ -4,7 +4,6 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Pulls code from your GitHub repository
                 checkout scm
             }
         }
@@ -18,10 +17,8 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Builds the Docker container image
-                    docker.image('eco-footprint-calculator:latest').build('.')
-                }
+                // Uses a direct docker build command via shell
+                sh 'docker build -t eco-footprint-calculator:latest .'
             }
         }
     }
